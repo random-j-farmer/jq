@@ -24,7 +24,7 @@ var table = []struct {
 	keys     []interface{}
 	expStr   string
 	errStr   bool
-	expInt   int
+	expInt   int64
 	errInt   bool
 	expFloat float64
 	errFloat bool
@@ -81,7 +81,7 @@ func Test_Int(t *testing.T) {
 	}
 
 	for _, inOut := range table {
-		v, err := q.IntError(inOut.keys...)
+		v, err := q.Int64Error(inOut.keys...)
 		if inOut.errInt {
 			if err == nil {
 				t.Errorf("IntError(%v): would have expected error!", inOut.keys)

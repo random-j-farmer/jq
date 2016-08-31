@@ -33,10 +33,22 @@ func (q *Query) String(args ...interface{}) string {
 	return s
 }
 
-// Int extracts an integer from the json document.
+// Int is a convenience wrapper for Int64Error
 func (q *Query) Int(args ...interface{}) int {
-	i, _ := q.IntError(args...)
+	i, _ := q.Int64Error(args...)
+	return int(i)
+}
+
+// Int64 extracts an integer from the json document.
+func (q *Query) Int64(args ...interface{}) int64 {
+	i, _ := q.Int64Error(args...)
 	return i
+}
+
+// UInt64 is a convenience wrapper for Int64Error
+func (q *Query) UInt64(args ...interface{}) uint64 {
+	i, _ := q.Int64Error(args...)
+	return uint64(i)
 }
 
 // Float extracts a float from the json document.
@@ -79,8 +91,8 @@ func (q *Query) StringError(args ...interface{}) (string, error) {
 
 }
 
-// IntError extracts an integer from the json document.
-func (q *Query) IntError(args ...interface{}) (int, error) {
+// Int64Error extracts an integer from the json document.
+func (q *Query) Int64Error(args ...interface{}) (int64, error) {
 	value, err := findChild(q.json, args)
 	if err != nil {
 		return 0, err
@@ -88,17 +100,17 @@ func (q *Query) IntError(args ...interface{}) (int, error) {
 
 	switch value := value.(type) {
 	case string:
-		i, err := strconv.Atoi(value)
+		i, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
 			f, err := strconv.ParseFloat(value, 64)
 			if err != nil {
 				return 0, err
 			}
-			return int(f), nil
+			return int64(f), nil
 		}
 		return i, nil
 	case float64:
-		return int(value), nil
+		return int64(value), nil
 	case bool:
 		if value {
 			return 1, nil
