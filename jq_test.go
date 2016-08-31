@@ -1,10 +1,11 @@
 package jq
 
 import (
+	"fmt"
 	"testing"
 )
 
-var simpleJson = `
+var simpleJSON = `
 {"simple": {
 	"string": "yes",
 	"numStr": "2.75",
@@ -45,7 +46,7 @@ var table = []struct {
 }
 
 func Test_String(t *testing.T) {
-	q, err := New([]byte(simpleJson))
+	q, err := Unmarshal([]byte(simpleJSON))
 	if err != nil {
 		t.Errorf("error parsing json: %v", err)
 	}
@@ -65,11 +66,16 @@ func Test_String(t *testing.T) {
 			t.Errorf("StringError(%v) exp<>act:\n%v\n%v", inOut.keys, inOut.expStr, v)
 		}
 	}
+}
 
+func ExampleQuery_String() {
+	q, _ := Unmarshal([]byte(`{"name": {"first": "Random", "last": "Farmer"}}`))
+	fmt.Printf("%s %s", q.String("name", "first"), q.String("name", "last"))
+	// Output: Random Farmer
 }
 
 func Test_Int(t *testing.T) {
-	q, err := New([]byte(simpleJson))
+	q, err := Unmarshal([]byte(simpleJSON))
 	if err != nil {
 		t.Errorf("error parsing json: %v", err)
 	}
@@ -93,7 +99,7 @@ func Test_Int(t *testing.T) {
 }
 
 func Test_Float(t *testing.T) {
-	q, err := New([]byte(simpleJson))
+	q, err := Unmarshal([]byte(simpleJSON))
 	if err != nil {
 		t.Errorf("error parsing json: %v", err)
 	}
@@ -115,8 +121,15 @@ func Test_Float(t *testing.T) {
 	}
 }
 
+func ExampleQuery_Float() {
+	q, _ := Unmarshal([]byte(`{"x": {"a": 17.5, "b": 2}}`))
+	a, b, c := q.Float("x", "a"), q.Float("x", "b"), q.Float("x", "c")
+	fmt.Printf("%g*%g*%g = %g\n", a, b, c, a*b*c)
+	// Output: 17.5*2*0 = 0
+}
+
 func Test_Slice(t *testing.T) {
-	q, err := New([]byte(simpleJson))
+	q, err := Unmarshal([]byte(simpleJSON))
 	if err != nil {
 		t.Errorf("error parsing json: %v", err)
 	}
@@ -141,7 +154,7 @@ func Test_Slice(t *testing.T) {
 }
 
 func Test_Map(t *testing.T) {
-	q, err := New([]byte(simpleJson))
+	q, err := Unmarshal([]byte(simpleJSON))
 	if err != nil {
 		t.Errorf("error parsing json: %v", err)
 	}

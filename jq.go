@@ -6,11 +6,18 @@ import (
 	"strconv"
 )
 
+// Query wraps a parsed json object
 type Query struct {
 	json interface{}
 }
 
-func New(b []byte) (*Query, error) {
+// New creates a query object for an unmarshalled json object.
+func New(json interface{}) *Query {
+	return &Query{json: json}
+}
+
+// Unmarshal unmarshals from a json blob and creates a query struct.
+func Unmarshal(b []byte) (*Query, error) {
 	var parsed interface{}
 	err := json.Unmarshal(b, &parsed)
 	if err != nil {
@@ -20,35 +27,37 @@ func New(b []byte) (*Query, error) {
 	return &Query{json: parsed}, nil
 }
 
-func NewFromInterface(json interface{}) *Query {
-	return &Query{json: json}
-}
-
+// String extracts a string from the json document.
 func (q *Query) String(args ...interface{}) string {
 	s, _ := q.StringError(args...)
 	return s
 }
 
+// Int extracts an integer from the json document.
 func (q *Query) Int(args ...interface{}) int {
 	i, _ := q.IntError(args...)
 	return i
 }
 
+// Float extracts a float from the json document.
 func (q *Query) Float(args ...interface{}) float64 {
 	f, _ := q.FloatError(args...)
 	return f
 }
 
+// Slice extracts a collection from the json document.
 func (q *Query) Slice(args ...interface{}) []interface{} {
 	slice, _ := q.SliceError(args...)
 	return slice
 }
 
+// Map extracs a map from the json document.
 func (q *Query) Map(args ...interface{}) map[string]interface{} {
 	m, _ := q.MapError(args...)
 	return m
 }
 
+// StringError extracts a string from the json document.
 func (q *Query) StringError(args ...interface{}) (string, error) {
 	value, err := findChild(q.json, args)
 	if err != nil {
@@ -70,6 +79,7 @@ func (q *Query) StringError(args ...interface{}) (string, error) {
 
 }
 
+// IntError extracts an integer from the json document.
 func (q *Query) IntError(args ...interface{}) (int, error) {
 	value, err := findChild(q.json, args)
 	if err != nil {
@@ -92,9 +102,8 @@ func (q *Query) IntError(args ...interface{}) (int, error) {
 	case bool:
 		if value {
 			return 1, nil
-		} else {
-			return 0, nil
 		}
+		return 0, nil
 	case nil:
 		return 0, nil
 	default:
@@ -103,6 +112,7 @@ func (q *Query) IntError(args ...interface{}) (int, error) {
 
 }
 
+// FloatError extracts a float from the json document.
 func (q *Query) FloatError(args ...interface{}) (float64, error) {
 	value, err := findChild(q.json, args)
 	if err != nil {
@@ -126,6 +136,7 @@ func (q *Query) FloatError(args ...interface{}) (float64, error) {
 
 }
 
+// SliceError extracts a collection.
 func (q *Query) SliceError(args ...interface{}) ([]interface{}, error) {
 	value, err := findChild(q.json, args)
 	if err != nil {
@@ -142,6 +153,7 @@ func (q *Query) SliceError(args ...interface{}) ([]interface{}, error) {
 	}
 }
 
+// MapError extracs a map
 func (q *Query) MapError(args ...interface{}) (map[string]interface{}, error) {
 	value, err := findChild(q.json, args)
 	if err != nil {
